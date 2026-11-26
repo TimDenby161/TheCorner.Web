@@ -126,6 +126,17 @@ public class GateTests
     }
 
     [Fact]
+    public void A_named_path_gets_its_own_policy_and_nothing_else_does()
+    {
+        var site = Sites.Closed with { PagePolicies = [("/c/", "client"), ("/plan/samples/", "trip"), ("/plan/samples/x/", "narrow")] };
+        Assert.Equal("client", Gate.PolicyFor(site, site.Production, "/c/abc/", "n"));
+        Assert.Equal("trip", Gate.PolicyFor(site, site.Production, "/plan/samples/japan/", "n"));
+        Assert.Equal("narrow", Gate.PolicyFor(site, site.Production, "/plan/samples/x/", "n"));
+        Assert.Equal(Gate.Policy(site, site.Production, "n"), Gate.PolicyFor(site, site.Production, "/plan/", "n"));
+        Assert.Equal(Gate.Policy(site, site.Production, "n"), Gate.PolicyFor(site, site.Production, "/cat/", "n"));
+    }
+
+    [Fact]
     public void Analytics_and_sign_in_are_allowed_only_where_that_copy_has_them()
     {
         var live = Gate.Policy(Sites.WithAccounts, Sites.WithAccounts.Production, "n");

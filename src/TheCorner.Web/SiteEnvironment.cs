@@ -28,6 +28,11 @@ public sealed record SiteSettings
     public IReadOnlyList<string> FormActions { get; init; } = [];
     public IReadOnlyList<string> ConnectSources { get; init; } = [];
 
+    // Pages under these path prefixes get this whole policy instead of the site's own (the longest
+    // prefix wins): for pages that can't keep to the site's policy, such as a trip page that styles
+    // itself inline. Name the narrowest prefix that will do, and keep frame-ancestors 'none' in it.
+    public IReadOnlyList<(string Prefix, string Policy)> PagePolicies { get; init; } = [];
+
     // Paths that take posts from other sites, each known by its own signature (a payment
     // provider's webhook). Every other post must come from the site's own pages.
     public IReadOnlyList<string> CrossSitePostPaths { get; init; } = [];

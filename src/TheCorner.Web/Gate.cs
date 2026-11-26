@@ -54,6 +54,11 @@ public static class Gate
         return string.Join("; ", parts);
     }
 
+    // The policy for one page: its path's own, if the site names one, or the site's
+    public static string PolicyFor(SiteSettings site, SiteEnvironment env, string path, string nonce) =>
+        site.PagePolicies.Where(p => path.StartsWith(p.Prefix, StringComparison.Ordinal)).OrderByDescending(p => p.Prefix.Length)
+            .Select(p => p.Policy).FirstOrDefault() ?? Policy(site, env, nonce);
+
     // Where a request is sent before any page runs, or null to go on: the site's address over http,
     // and www, go to https on the site's own address.
     public static string? Redirect(SiteEnvironment env, string scheme, string host, string path, string query) =>
@@ -81,7 +86,7 @@ public static class Gate
             var h = response.Headers;
             foreach (var (k, v) in SecurityHeaders) h[k] = v;
             if (response.ContentType?.StartsWith("text/html", StringComparison.Ordinal) == true)
-                h.ContentSecurityPolicy = Policy(site, env, nonce);
+                h.ContentSecurityPolicy = PolicyFor(site, env, request.Path.Value ?? "/", nonce);
             // a page may differ by who asks: nothing between may hand one visitor's copy to another
             h.Append("Vary", "Cookie");
             // staging is never for search engines, whatever links to it
