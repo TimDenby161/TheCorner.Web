@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/TheCorner.Web/TheCorner.Web.csproj" />
+  <Project Path="tests/TheCorner.Web.Tests/TheCorner.Web.Tests.csproj" />
+</Solution>
